@@ -1,0 +1,119 @@
+CREATE TABLE User (
+    User_Id INT PRIMARY KEY AUTO_INCREMENT,
+    Nickname VARCHAR(255),
+    Email VARCHAR(255) UNIQUE,
+    Login VARCHAR(255) UNIQUE,
+    Password VARCHAR(255),
+    Role VARCHAR(50)
+);
+
+CREATE TABLE Teacher (
+    Teacher_Id INT PRIMARY KEY AUTO_INCREMENT,
+    User_Id INT,
+    Place_of_Employment VARCHAR(255),
+    Position VARCHAR(255),
+    Text VARCHAR(255),
+    Level VARCHAR(100),
+    Teacher_role VARCHAR(255),
+    Photo BLOB,
+    FOREIGN KEY (User_Id) REFERENCES User(User_Id)
+);
+
+CREATE TABLE Language (
+    Language_Id INT PRIMARY KEY AUTO_INCREMENT,
+    Language_name VARCHAR(255)
+);
+
+CREATE TABLE Discipline (
+    Discipline_Id INT PRIMARY KEY AUTO_INCREMENT,
+    Discipline_name VARCHAR(255),
+    Discipline_Description VARCHAR(255),
+    Discipline_type VARCHAR(255),
+    Volume INT,
+    Syllabus_link VARCHAR(255)
+);
+
+CREATE TABLE DisciplineTeacher (
+    DisciplineTeacher_Id INT PRIMARY KEY AUTO_INCREMENT,
+    Teacher_Id INT NOT NULL,
+    Discipline_Id INT NOT NULL,
+    Language_Id INT,
+    Beginning_Year INT,
+    FOREIGN KEY (Teacher_Id) REFERENCES Teacher(Teacher_Id),
+    FOREIGN KEY (Discipline_Id) REFERENCES Discipline(Discipline_Id),
+    FOREIGN KEY (Language_Id) REFERENCES Language(Language_Id)
+);
+
+CREATE TABLE Lesson (
+    Lesson_Id INT PRIMARY KEY AUTO_INCREMENT,
+    Name VARCHAR(255),
+    Lesson_date DATE,
+    Lesson_time TIME,
+    Link VARCHAR(255)
+);
+
+CREATE TABLE Event (
+    Event_Id INT PRIMARY KEY AUTO_INCREMENT,
+    Teacher_Id INT,
+    Lesson_Id INT,
+    Event_name VARCHAR(255),
+    Type VARCHAR(100),
+    Format VARCHAR(100),
+    Begin_date DATE,
+    Status VARCHAR(50),
+    FOREIGN KEY (Teacher_Id) REFERENCES Teacher(Teacher_Id),
+    FOREIGN KEY (Lesson_Id) REFERENCES Lesson(Lesson_Id)
+);
+
+CREATE TABLE Material (
+    Material_Id INT PRIMARY KEY AUTO_INCREMENT,
+    Event_Id INT,
+    Material_name VARCHAR(255),
+    File BLOB,
+    Material_type VARCHAR(100),
+    FOREIGN KEY (Event_Id) REFERENCES Event(Event_Id)
+);
+
+CREATE TABLE Development_Direction (
+    Development_direction_Id INT PRIMARY KEY AUTO_INCREMENT,
+    Development_direction_name VARCHAR(255),
+    Development_direction_Description VARCHAR(255)
+);
+
+CREATE TABLE Level (
+    Level_Id INT PRIMARY KEY AUTO_INCREMENT,
+    Level_name VARCHAR(255)
+);
+
+CREATE TABLE Chapter (
+    Chapter_Id INT PRIMARY KEY AUTO_INCREMENT,
+    Level_Id INT,
+    Development_direction_Id INT,
+    Chapter_name VARCHAR(255),
+    FOREIGN KEY (Level_Id) REFERENCES Level(Level_Id),
+    FOREIGN KEY (Development_direction_Id) REFERENCES Development_Direction(Development_direction_Id)
+);
+
+CREATE TABLE Skill (
+    Skill_Id INT PRIMARY KEY AUTO_INCREMENT,
+    Skill_name VARCHAR(255)
+);
+
+CREATE TABLE SkillChapter (
+    SkillChapter_Id INT PRIMARY KEY AUTO_INCREMENT,
+    Skill_Id INT NOT NULL,
+    Chapter_Id INT NOT NULL,
+    FOREIGN KEY (Skill_Id) REFERENCES Skill(Skill_Id),
+    FOREIGN KEY (Chapter_Id) REFERENCES Chapter(Chapter_Id)
+);
+
+CREATE TABLE DisciplineSkill (
+    DisciplineSkill_Id INT PRIMARY KEY AUTO_INCREMENT,
+    Discipline_Id INT NOT NULL,
+    Skill_Id INT NOT NULL,
+    Level_Id INT,
+    Learning_type VARCHAR(255),
+    FOREIGN KEY (Discipline_Id) REFERENCES Discipline(Discipline_Id),
+    FOREIGN KEY (Skill_Id) REFERENCES Skill(Skill_Id),
+    FOREIGN KEY (Level_Id) REFERENCES Level(Level_Id)
+);
