@@ -1,4 +1,3 @@
-Pdf
 CREATE TABLE User (
     User_Id INT PRIMARY KEY AUTO_INCREMENT,
     Nickname VARCHAR(255),
