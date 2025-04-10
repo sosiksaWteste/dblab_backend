@@ -1,119 +1,119 @@
-CREATE TABLE User (
-    User_Id INT PRIMARY KEY AUTO_INCREMENT,
-    Nickname VARCHAR(255),
-    Email VARCHAR(255) UNIQUE,
-    Login VARCHAR(255) UNIQUE,
-    Password VARCHAR(255),
-    Role VARCHAR(50)
+CREATE TABLE user (
+    user_Id INT PRIMARY KEY AUTO_INCREMENT,
+    nickname VARCHAR(255),
+    email VARCHAR(255) UNIQUE,
+    login VARCHAR(255) UNIQUE,
+    password VARCHAR(255),
+    role VARCHAR(50)
 );
 
-CREATE TABLE Teacher (
-    Teacher_Id INT PRIMARY KEY AUTO_INCREMENT,
-    User_Id INT,
-    Place_of_Employment VARCHAR(255),
-    Position VARCHAR(255),
-    Text VARCHAR(255),
-    Level VARCHAR(100),
-    Teacher_role VARCHAR(255),
-    Photo BLOB,
-    FOREIGN KEY (User_Id) REFERENCES User(User_Id)
+CREATE TABLE teacher (
+    teacher_Id INT PRIMARY KEY AUTO_INCREMENT,
+    user_Id INT,
+    place_of_Employment VARCHAR(255),
+    position VARCHAR(255),
+    text VARCHAR(255),
+    level VARCHAR(100),
+    teacher_role VARCHAR(255),
+    photo BLOB,
+    FOREIGN KEY (user_Id) REFERENCES user(user_Id)
 );
 
-CREATE TABLE Language (
-    Language_Id INT PRIMARY KEY AUTO_INCREMENT,
-    Language_name VARCHAR(255)
+CREATE TABLE language (
+    language_Id INT PRIMARY KEY AUTO_INCREMENT,
+    language_name VARCHAR(255)
 );
 
-CREATE TABLE Discipline (
-    Discipline_Id INT PRIMARY KEY AUTO_INCREMENT,
-    Discipline_name VARCHAR(255),
-    Discipline_Description VARCHAR(255),
-    Discipline_type VARCHAR(255),
-    Volume INT,
-    Syllabus_link VARCHAR(255)
+CREATE TABLE discipline (
+    discipline_Id INT PRIMARY KEY AUTO_INCREMENT,
+    discipline_name VARCHAR(255),
+    discipline_Description VARCHAR(255),
+    discipline_type VARCHAR(255),
+    volume INT,
+    syllabus_link VARCHAR(255)
 );
 
-CREATE TABLE DisciplineTeacher (
-    DisciplineTeacher_Id INT PRIMARY KEY AUTO_INCREMENT,
-    Teacher_Id INT NOT NULL,
-    Discipline_Id INT NOT NULL,
-    Language_Id INT,
-    Beginning_Year INT,
-    FOREIGN KEY (Teacher_Id) REFERENCES Teacher(Teacher_Id),
-    FOREIGN KEY (Discipline_Id) REFERENCES Discipline(Discipline_Id),
-    FOREIGN KEY (Language_Id) REFERENCES Language(Language_Id)
+CREATE TABLE disciplineTeacher (
+    disciplineTeacher_Id INT PRIMARY KEY AUTO_INCREMENT,
+    teacher_Id INT NOT NULL,
+    discipline_Id INT NOT NULL,
+    language_Id INT,
+    beginning_Year INT,
+    FOREIGN KEY (teacher_Id) REFERENCES teacher(teacher_Id),
+    FOREIGN KEY (discipline_Id) REFERENCES discipline(discipline_Id),
+    FOREIGN KEY (language_Id) REFERENCES language(language_Id)
 );
 
-CREATE TABLE Lesson (
-    Lesson_Id INT PRIMARY KEY AUTO_INCREMENT,
-    Name VARCHAR(255),
-    Lesson_date DATE,
-    Lesson_time TIME,
-    Link VARCHAR(255)
+CREATE TABLE lesson (
+    lesson_Id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255),
+    lesson_date DATE,
+    lesson_time TIME,
+    link VARCHAR(255)
 );
 
-CREATE TABLE Event (
-    Event_Id INT PRIMARY KEY AUTO_INCREMENT,
-    Teacher_Id INT,
-    Lesson_Id INT,
-    Event_name VARCHAR(255),
-    Type VARCHAR(100),
-    Format VARCHAR(100),
-    Begin_date DATE,
-    Status VARCHAR(50),
-    FOREIGN KEY (Teacher_Id) REFERENCES Teacher(Teacher_Id),
-    FOREIGN KEY (Lesson_Id) REFERENCES Lesson(Lesson_Id)
+CREATE TABLE event (
+    event_Id INT PRIMARY KEY AUTO_INCREMENT,
+    teacher_Id INT,
+    lesson_Id INT,
+    event_name VARCHAR(255),
+    type VARCHAR(100),
+    format VARCHAR(100),
+    begin_date DATE,
+    status VARCHAR(50),
+    FOREIGN KEY (teacher_Id) REFERENCES teacher(teacher_Id),
+    FOREIGN KEY (lesson_Id) REFERENCES lesson(lesson_Id)
 );
 
-CREATE TABLE Material (
-    Material_Id INT PRIMARY KEY AUTO_INCREMENT,
-    Event_Id INT,
-    Material_name VARCHAR(255),
-    File BLOB,
-    Material_type VARCHAR(100),
-    FOREIGN KEY (Event_Id) REFERENCES Event(Event_Id)
+CREATE TABLE material (
+    material_Id INT PRIMARY KEY AUTO_INCREMENT,
+    event_Id INT,
+    material_name VARCHAR(255),
+    file BLOB,
+    material_type VARCHAR(100),
+    FOREIGN KEY (event_Id) REFERENCES event(event_Id)
 );
 
-CREATE TABLE Development_Direction (
-    Development_direction_Id INT PRIMARY KEY AUTO_INCREMENT,
-    Development_direction_name VARCHAR(255),
-    Development_direction_Description VARCHAR(255)
+CREATE TABLE development_direction (
+    development_direction_Id INT PRIMARY KEY AUTO_INCREMENT,
+    development_direction_name VARCHAR(255),
+    development_direction_Description VARCHAR(255)
 );
 
-CREATE TABLE Level (
-    Level_Id INT PRIMARY KEY AUTO_INCREMENT,
-    Level_name VARCHAR(255)
+CREATE TABLE level (
+    level_Id INT PRIMARY KEY AUTO_INCREMENT,
+    level_name VARCHAR(255)
 );
 
-CREATE TABLE Chapter (
-    Chapter_Id INT PRIMARY KEY AUTO_INCREMENT,
-    Level_Id INT,
-    Development_direction_Id INT,
-    Chapter_name VARCHAR(255),
-    FOREIGN KEY (Level_Id) REFERENCES Level(Level_Id),
-    FOREIGN KEY (Development_direction_Id) REFERENCES Development_Direction(Development_direction_Id)
+CREATE TABLE chapter (
+    chapter_Id INT PRIMARY KEY AUTO_INCREMENT,
+    level_Id INT,
+    development_direction_Id INT,
+    chapter_name VARCHAR(255),
+    FOREIGN KEY (level_Id) REFERENCES level(level_Id),
+    FOREIGN KEY (development_direction_Id) REFERENCES development_direction(development_direction_Id)
 );
 
-CREATE TABLE Skill (
-    Skill_Id INT PRIMARY KEY AUTO_INCREMENT,
-    Skill_name VARCHAR(255)
+CREATE TABLE skill (
+    skill_Id INT PRIMARY KEY AUTO_INCREMENT,
+    skill_name VARCHAR(255)
 );
 
-CREATE TABLE SkillChapter (
-    SkillChapter_Id INT PRIMARY KEY AUTO_INCREMENT,
-    Skill_Id INT NOT NULL,
-    Chapter_Id INT NOT NULL,
-    FOREIGN KEY (Skill_Id) REFERENCES Skill(Skill_Id),
-    FOREIGN KEY (Chapter_Id) REFERENCES Chapter(Chapter_Id)
+CREATE TABLE skillChapter (
+    skillChapter_Id INT PRIMARY KEY AUTO_INCREMENT,
+    skill_Id INT NOT NULL,
+    chapter_Id INT NOT NULL,
+    FOREIGN KEY (skill_Id) REFERENCES skill(skill_Id),
+    FOREIGN KEY (chapter_Id) REFERENCES chapter(chapter_Id)
 );
 
-CREATE TABLE DisciplineSkill (
-    DisciplineSkill_Id INT PRIMARY KEY AUTO_INCREMENT,
-    Discipline_Id INT NOT NULL,
-    Skill_Id INT NOT NULL,
-    Level_Id INT,
-    Learning_type VARCHAR(255),
-    FOREIGN KEY (Discipline_Id) REFERENCES Discipline(Discipline_Id),
-    FOREIGN KEY (Skill_Id) REFERENCES Skill(Skill_Id),
-    FOREIGN KEY (Level_Id) REFERENCES Level(Level_Id)
+CREATE TABLE disciplineSkill (
+    disciplineSkill_Id INT PRIMARY KEY AUTO_INCREMENT,
+    discipline_Id INT NOT NULL,
+    skill_Id INT NOT NULL,
+    level_Id INT,
+    learning_type VARCHAR(255),
+    FOREIGN KEY (discipline_Id) REFERENCES discipline(discipline_Id),
+    FOREIGN KEY (skill_Id) REFERENCES skill(skill_Id),
+    FOREIGN KEY (level_Id) REFERENCES level(level_Id)
 );
