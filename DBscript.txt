@@ -10,6 +10,7 @@ CREATE TABLE user (
 CREATE TABLE teacher (
     teacher_Id INT PRIMARY KEY AUTO_INCREMENT,
     user_Id INT,
+    full_name VARCHAR(255),
     place_of_Employment VARCHAR(255),
     position VARCHAR(255),
     text VARCHAR(255),
