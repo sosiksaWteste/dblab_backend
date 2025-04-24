@@ -1,3 +1,6 @@
+const path = require('path');
+const fs = require('fs');
+const cache = path.join(__dirname, '..', 'cache.json');
 const Material = require('../models/Relations').Material;
 
 const create = async (req, res) => {
@@ -12,8 +15,11 @@ const create = async (req, res) => {
 
 const getAll = async (req, res) => {
     try {
-        const material = await Material.findAll();
-        return res.status(200).json(material);
+        const cacheData = JSON.parse(fs.readFileSync(cache, 'utf-8'));
+        if (!cacheData.materials) {
+            return res.status(404).json({ message: 'material not found in cache.' });
+        }
+        return res.status(200).json(cacheData.materials);
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }

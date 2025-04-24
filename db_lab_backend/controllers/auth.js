@@ -15,8 +15,8 @@ const login = async (req, res) => {
         if (!isPassword) {
             return res.status(400).json({ message: 'Invalid password' });
         }
-        const token = jwt.sign({ id: user.user_Id }, process.env.KEY, {
-            expiresIn: '1h'
+        const token = jwt.sign({ id: user.user_Id, role:user.role }, process.env.KEY, {
+            expiresIn: '48h'
         });
         return res.status(200).json({ message: 'Login successful', token });
     } catch (error) {
@@ -34,8 +34,8 @@ const register = async (req, res) => {
         }
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = await User.create({ nickname, email, login, password:hashedPassword, role:"student" });
-        const token = jwt.sign({ id: user.user_Id }, process.env.KEY, {
-            expiresIn: '1h'
+        const token = jwt.sign({ id: user.user_Id, role:user.role }, process.env.KEY, {
+            expiresIn: '48h'
         });
         res.status(201).json({ message: 'User registered', token });
     } catch (error) {

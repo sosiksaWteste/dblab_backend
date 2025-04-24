@@ -1,3 +1,6 @@
+const path = require('path');
+const fs = require('fs');
+const cache = path.join(__dirname, '..', 'cache.json');
 const Level = require('../models/Relations').Level;
 
 const create = async (req, res) => {
@@ -12,8 +15,11 @@ const create = async (req, res) => {
 
 const getAll = async (req, res) => {
     try {
-        const level = await Level.findAll();
-        return res.status(200).json(level);
+        const cacheData = JSON.parse(fs.readFileSync(cache, 'utf-8'));
+        if (!cacheData.levels) {
+            return res.status(404).json({ message: 'level not found in cache.' });
+        }
+        return res.status(200).json(cacheData.levels);
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }

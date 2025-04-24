@@ -1,7 +1,7 @@
+const path = require('path');
+const fs = require('fs');
+const cache = path.join(__dirname, '..', 'cache.json');
 const Discipline = require('../models/Relations').Discipline;
-const Skill = require('../models/Relations').Skill;
-const Teacher = require('../models/Relations').Teacher;
-const { Sequelize} = require('sequelize');
 
 const create = async (req, res) => {
     try {
@@ -15,8 +15,11 @@ const create = async (req, res) => {
 
 const getAll = async (req, res) => {
     try {
-        const discipline = await Discipline.findAll();
-        return res.status(200).json(discipline);
+        const cacheData = JSON.parse(fs.readFileSync(cache, 'utf-8'));
+        if (!cacheData.disciplines) {
+            return res.status(404).json({ message: 'discipline not found in cache.' });
+        }
+        return res.status(200).json(cacheData.disciplines);
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
@@ -34,37 +37,38 @@ const deleter = async (req, res) => {
 
 const getFull = async (req, res) => {
     try {
-        const disciplines = await Discipline.findAll({
-            attributes: [
-                'discipline_Id',
-                'discipline_name',
-                'discipline_Description',
-                'discipline_type',
-                'volume',
-                'syllabus_link',
-                [Sequelize.fn('GROUP_CONCAT', Sequelize.col('Teachers.full_name')), 'teachers'],
-                [Sequelize.fn('GROUP_CONCAT', Sequelize.col('Skills.skill_name')), 'skills']
-            ],
-            include: [
-                {
-                    model: Teacher,
-                    attributes: [],
-                    through: { attributes: [] },
-                    as: 'Teachers'
-                },
-                {
-                    model: Skill,
-                    attributes: [],
-                    through: { attributes: [] },
-                    as: 'Skills'
-                }
-            ],
-            group: ['Discipline.discipline_Id'],
+        const cacheData = JSON.parse(fs.readFileSync(cache, 'utf-8'));
+        const {
+            disciplines,
+            disciplineTeachers,
+            teachers,
+            disciplineSkills,
+            skills
+        } = cacheData;
+        const enrichedDisciplines = disciplines.map(discipline => {
+            const relatedTeacherIds = disciplineTeachers
+                .filter(dt => dt.discipline_Id === discipline.discipline_Id)
+                .map(dt => dt.teacher_Id);
+            const teacherNames = teachers
+                .filter(t => relatedTeacherIds.includes(t.teacher_Id))
+                .map(t => t.full_name);
+            const relatedSkillIds = disciplineSkills
+                .filter(ds => ds.discipline_Id === discipline.discipline_Id)
+                .map(ds => ds.skill_Id);
+            const skillNames = skills
+                .filter(s => relatedSkillIds.includes(s.skill_Id))
+                .map(s => s.skill_name);
+            return {
+                ...discipline,
+                teachers: teacherNames.join(', '),
+                skills: skillNames.join(', ')
+            };
         });
-        return res.status(200).json(disciplines);
+        return res.status(200).json(enrichedDisciplines);
     } catch (error) {
         return res.status(500).json({ message: error.message });
-    }}
+    }
+};
   
 module.exports = {
     create,

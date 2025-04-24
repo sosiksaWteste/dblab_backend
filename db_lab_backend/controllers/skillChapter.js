@@ -1,3 +1,6 @@
+const path = require('path');
+const fs = require('fs');
+const cache = path.join(__dirname, '..', 'cache.json');
 const SkillChapter = require('../models/Relations').SkillChapter;
 
 const create = async (req, res) => {
@@ -12,8 +15,11 @@ const create = async (req, res) => {
 
 const getAll = async (req, res) => {
     try {
-        const skillChapter = await SkillChapter.findAll();
-        return res.status(200).json(skillChapter);
+        const cacheData = JSON.parse(fs.readFileSync(cache, 'utf-8'));
+        if (!cacheData.skillChapters) {
+            return res.status(404).json({ message: 'skillChapter not found in cache.' });
+        }
+        return res.status(200).json(cacheData.skillChapters);
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }

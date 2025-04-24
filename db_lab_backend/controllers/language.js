@@ -1,3 +1,6 @@
+const path = require('path');
+const fs = require('fs');
+const cache = path.join(__dirname, '..', 'cache.json');
 const Language = require('../models/Relations').Language;
 
 const create = async (req, res) => {
@@ -12,8 +15,11 @@ const create = async (req, res) => {
 
 const getAll = async (req, res) => {
     try {
-        const language = await Language.findAll();
-        return res.status(200).json(language);
+        const cacheData = JSON.parse(fs.readFileSync(cache, 'utf-8'));
+        if (!cacheData.languages) {
+            return res.status(404).json({ message: 'language not found in cache.' });
+        }
+        return res.status(200).json(cacheData.languages);
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }

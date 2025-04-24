@@ -1,3 +1,6 @@
+const path = require('path');
+const fs = require('fs');
+const cache = path.join(__dirname, '..', 'cache.json');
 const DevelopmentDirection = require('../models/Relations').DevelopmentDirection;
 
 const create = async (req, res) => {
@@ -12,8 +15,11 @@ const create = async (req, res) => {
 
 const getAll = async (req, res) => {
     try {
-        const developmentDirection = await DevelopmentDirection.findAll();
-        return res.status(200).json(developmentDirection);
+        const cacheData = JSON.parse(fs.readFileSync(cache, 'utf-8'));
+        if (!cacheData.developmentDirections) {
+            return res.status(404).json({ message: 'developmentDirection not found in cache.' });
+        }
+        return res.status(200).json(cacheData.developmentDirections);
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
