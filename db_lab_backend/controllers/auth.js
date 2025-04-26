@@ -1,13 +1,13 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/Relations').User;
+const { Op } = require('sequelize');
 
 const login = async (req, res) => {
     const { login, email, password } = req.body;
 
     try {
-        const user = await User.findOne({ where: { login, email } });
-        
+        const user = await User.findOne({ where: { [Op.or]: [{ login }, { email }] } })
         if (!user) {
             return res.status(400).json({ message: 'User not found' });
         }
