@@ -1,11 +1,13 @@
 const express = require('express');
-const {create, getAll, deleter, getFull} = require('../controllers/discipline.js');
+const {create, getAll, deleter, getFull, update, getFullId} = require('../controllers/discipline.js');
 const {isAdmin} = require('../middlewares/auth.js');
 const router = express.Router();
 
 router.post('/create', isAdmin, create);
 router.get('/getAll', getAll);
-router.post('/delete', isAdmin, deleter);
+router.delete('/delete/:discipline_Id', isAdmin, deleter);
 router.get('/getFull', getFull);
+router.put('/:discipline_Id', isAdmin, update);
+router.get('/getFull/:discipline_Id', getFullId);
 
 module.exports = router;

@@ -1,10 +1,12 @@
 const express = require('express');
-const {create, getAll, deleter} = require('../controllers/developmentDirection.js');
+const {create, getAll, deleter, update, getRoad} = require('../controllers/developmentDirection.js');
 const {isAdmin} = require('../middlewares/auth.js');
 const router = express.Router();
 
 router.post('/create', isAdmin, create);
 router.get('/getAll', getAll);
-router.post('/delete', isAdmin, deleter);
+router.delete('/delete/:development_direction_Id', isAdmin, deleter);
+router.put('/:development_direction_Id', isAdmin, update);
+router.get('/getRoad/:development_direction_Id', getRoad);
 
 module.exports = router;

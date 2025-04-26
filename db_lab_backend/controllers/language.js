@@ -27,7 +27,7 @@ const getAll = async (req, res) => {
 
 const deleter = async (req, res) => {
     try {
-        const { language_Id } = req.body;
+        const { language_Id } = req.params;
         const result = await Language.destroy({ where: { language_Id } });
         return res.status(200).json(result);
     } catch (error) {
@@ -35,8 +35,20 @@ const deleter = async (req, res) => {
     }
 };
 
+const update = async (req, res) => {
+    try {
+        const { language_Id } = req.params;
+        const { language_name } = req.body;
+        const language = await Language.update({ language_name }, {where: {language_Id}});
+        return res.status(200).json(language);
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+}
+
 module.exports = {
     create,
     getAll,
     deleter,
+    update
 };

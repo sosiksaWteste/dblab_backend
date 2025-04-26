@@ -23,7 +23,7 @@ const getAll = async (req, res) => {
 
 const deleter = async (req, res) => {
     try {
-        const { user_Id } = req.body;
+        const { user_Id } = req.params;
         const result = await User.destroy({ where: { user_Id } });
         return res.status(200).json(result);
     } catch (error) {
@@ -31,8 +31,21 @@ const deleter = async (req, res) => {
     }
 };
 
+const update = async (req, res) => {
+    try {
+        const { user_Id } = req.params;
+        const { nickname, email, login, password, role } = req.body;
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const user = await User.update({ nickname, email, login, password:hashedPassword, role }, {where: {user_Id}});
+        return res.status(200).json(user);
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+}
+
 module.exports = {
     create,
     getAll,
     deleter,
+    update
 };

@@ -27,7 +27,7 @@ const getAll = async (req, res) => {
 
 const deleter = async (req, res) => {
     try {
-        const { material_Id } = req.body;
+        const { material_Id } = req.params;
         const result = await Material.destroy({ where: { material_Id } });
         return res.status(200).json(result);
     } catch (error) {
@@ -35,8 +35,20 @@ const deleter = async (req, res) => {
     }
 };
 
+const update = async (req, res) => {
+    try {
+        const { material_Id } = req.params;
+        const { event_Id, material_name, file, material_type } = req.body;
+        const material = await Material.update({ event_Id, material_name, file, material_type }, {where: {material_Id}});
+        return res.status(200).json(material);
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+}
+
 module.exports = {
     create,
     getAll,
     deleter,
+    update
 };

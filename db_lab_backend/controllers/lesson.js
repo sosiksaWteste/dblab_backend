@@ -27,7 +27,7 @@ const getAll = async (req, res) => {
 
 const deleter = async (req, res) => {
     try {
-        const { lesson_Id } = req.body;
+        const { lesson_Id } = req.params;
         const result = await Lesson.destroy({ where: { lesson_Id } });
         return res.status(200).json(result);
     } catch (error) {
@@ -35,8 +35,20 @@ const deleter = async (req, res) => {
     }
 };
 
+const update = async (req, res) => {
+    try {
+        const { lesson_Id } = req.params;
+        const { name, lesson_date, lesson_time, link } = req.body;
+        const lesson = await Lesson.update({ name, lesson_date, lesson_time, link }, {where: {lesson_Id}});
+        return res.status(200).json(lesson);
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+}
+
 module.exports = {
     create,
     getAll,
     deleter,
+    update
 };
