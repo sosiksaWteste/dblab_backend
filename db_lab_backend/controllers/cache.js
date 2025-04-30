@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs');
+const cache = path.join(__dirname, '..', 'cache.json');
 const {Chapter, DevelopmentDirection, Discipline, DisciplineSkill, 
     DisciplineTeacher, Event, Language, Lesson, Level, 
     Material, Skill, SkillChapter, Teacher} = require(path.join(__dirname, '..', 'models', 'Relations'));
@@ -21,6 +22,12 @@ const update = async (req, res) => {
         const teachers = await Teacher.findAll();
       
         const combinedData = {
+            history: [
+                {
+                    upToDate: true,
+                    lastUpdate: new Date(new Date().getTime() + (3 * 60 * 60 * 1000)).toISOString()
+                },
+            ],
             chapters: chapters.map(chapters => chapters.toJSON()),
             developmentDirections: developmentDirections.map(developmentDirections => developmentDirections.toJSON()),
             disciplines: disciplines.map(disciplines => disciplines.toJSON()),
@@ -43,6 +50,19 @@ const update = async (req, res) => {
     }
 };
 
+const getLastUpdate = async (req, res) => {
+    try {
+        const cacheData = JSON.parse(fs.readFileSync(cache, 'utf-8'));
+        if (!cacheData.history) {
+            return res.status(404).json({ message: 'History not found in cache.' });
+        }
+        return res.status(200).json(cacheData.history);
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
-    update
+    update,
+    getLastUpdate
 };
