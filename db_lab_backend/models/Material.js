@@ -16,7 +16,7 @@ const Material = db.sequelize.define('Material', {
         allowNull: false
     },
     file: {
-        type: DataTypes.BLOB,
+        type: DataTypes.BLOB('medium'),
         allowNull: true
     },
     material_type: {

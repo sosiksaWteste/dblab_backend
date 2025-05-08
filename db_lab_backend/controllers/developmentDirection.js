@@ -25,6 +25,15 @@ const getAll = async (req, res) => {
     }
 };
 
+const getFromDb = async (req, res) => {
+    try {
+        const developmentDirections = await DevelopmentDirection.findAll({});
+        return res.status(200).json(developmentDirections);
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
 const deleter = async (req, res) => {
     try {
         const { development_direction_Id } = req.params;
@@ -99,5 +108,6 @@ module.exports = {
     getAll,
     deleter,
     update,
-    getRoad
+    getRoad,
+    getFromDb
 };

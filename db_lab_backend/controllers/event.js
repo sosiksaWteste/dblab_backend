@@ -2,6 +2,8 @@ const path = require('path');
 const fs = require('fs');
 const cache = path.join(__dirname, '..', 'cache.json');
 const Event = require('../models/Relations').Event;
+const Teacher = require('../models/Relations').Teacher;
+const Lesson = require('../models/Relations').Lesson;
 
 const create = async (req, res) => {
     try {
@@ -20,6 +22,34 @@ const getAll = async (req, res) => {
             return res.status(404).json({ message: 'event not found in cache.' });
         }
         return res.status(200).json(cacheData.events);
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+const getFromDb = async (req, res) => {
+    try {
+        const events = await Event.findAll({
+            include: [
+                {
+                    model: Lesson,
+                    attributes: ['name']
+                },
+                {
+                    model: Teacher,
+                    attributes: ['full_name']
+                },
+            ]
+        });
+        const result = events.map(event => {
+            const { Lesson, Teacher, ...eventData } = event.toJSON();
+            return {
+                ...eventData,
+                lesson_name: Lesson.name,
+                full_name: Teacher.full_name,
+            };
+        });
+        return res.status(200).json(result);
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
@@ -50,5 +80,6 @@ module.exports = {
     create,
     getAll,
     deleter,
-    update
+    update,
+    getFromDb
 };

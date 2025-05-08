@@ -2,6 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const cache = path.join(__dirname, '..', 'cache.json');
 const Teacher = require('../models/Relations').Teacher;
+const User = require('../models/Relations').User;
 
 const create = async (req, res) => {
     try {
@@ -20,6 +21,29 @@ const getAll = async (req, res) => {
             return res.status(404).json({ message: 'teacher not found in cache.' });
         }
         return res.status(200).json(cacheData.teachers);
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+const getFromDb = async (req, res) => {
+    try {
+        const teachers = await Teacher.findAll({
+            include: [
+                {
+                    model: User,
+                    attributes: ['login']
+                },
+            ]
+        });
+        const result = teachers.map(teacher => {
+            const { User, ...teacherData } = teacher.toJSON();
+            return {
+                ...teacherData,
+                login: User.login,
+            };
+        });
+        return res.status(200).json(result);
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
@@ -50,5 +74,6 @@ module.exports = {
     create,
     getAll,
     deleter,
-    update
+    update,
+    getFromDb
 };

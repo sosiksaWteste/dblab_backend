@@ -1,5 +1,5 @@
 const express = require('express');
-const {create, getAll, deleter, update} = require('../controllers/user.js');
+const {create, getAll, deleter, update, getFromDb} = require('../controllers/user.js');
 const {isAdmin} = require('../middlewares/auth.js');
 const router = express.Router();
 

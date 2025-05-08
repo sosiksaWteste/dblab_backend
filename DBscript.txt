@@ -16,7 +16,7 @@ CREATE TABLE teacher (
     text VARCHAR(255),
     level VARCHAR(100),
     teacher_role VARCHAR(255),
-    photo BLOB,
+    photo MEDIUMBLOB,
     FOREIGN KEY (user_Id) REFERENCES user(user_Id)
 );
 
@@ -70,7 +70,7 @@ CREATE TABLE material (
     material_Id INT PRIMARY KEY AUTO_INCREMENT,
     event_Id INT,
     material_name VARCHAR(255),
-    file BLOB,
+    file MEDIUMBLOB,
     material_type VARCHAR(100),
     FOREIGN KEY (event_Id) REFERENCES event(event_Id)
 );

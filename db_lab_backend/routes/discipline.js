@@ -1,5 +1,5 @@
 const express = require('express');
-const {create, getAll, deleter, getFull, update, getFullId} = require('../controllers/discipline.js');
+const {create, getAll, deleter, getFull, update, getFullId, getFromDb} = require('../controllers/discipline.js');
 const {isAdmin} = require('../middlewares/auth.js');
 const {notUpToDate} = require('../middlewares/cache.js');
 const router = express.Router();
@@ -10,5 +10,6 @@ router.delete('/delete/:discipline_Id', isAdmin, notUpToDate, deleter);
 router.get('/getFull', getFull);
 router.put('/:discipline_Id', isAdmin, notUpToDate, update);
 router.get('/getFull/:discipline_Id', getFullId);
+router.get('/getFromDb', isAdmin, getFromDb);
 
 module.exports = router;

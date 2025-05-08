@@ -25,6 +25,15 @@ const getAll = async (req, res) => {
     }
 };
 
+const getFromDb = async (req, res) => {
+    try {
+        const disciplines = await Discipline.findAll({});
+        return res.status(200).json(disciplines);
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
 const deleter = async (req, res) => {
     try {
         const { discipline_Id } = req.params;
@@ -131,5 +140,6 @@ module.exports = {
     deleter,
     getFull,
     update,
-    getFullId
+    getFullId,
+    getFromDb
 };

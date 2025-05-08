@@ -45,6 +45,9 @@ Chapter.belongsTo(DevelopmentDirection, { foreignKey: 'development_direction_Id'
 Level.hasMany(Chapter, { foreignKey: 'level_Id' });
 Chapter.belongsTo(Level, { foreignKey: 'level_Id' });
 
+Chapter.belongsToMany(Skill, { through: SkillChapter, foreignKey: 'chapter_Id' });
+Skill.belongsToMany(Chapter, { through: SkillChapter, foreignKey: 'skill_Id' });
+
 Chapter.hasMany(SkillChapter, { foreignKey: 'chapter_Id' });
 SkillChapter.belongsTo(Chapter, { foreignKey: 'chapter_Id' });
 

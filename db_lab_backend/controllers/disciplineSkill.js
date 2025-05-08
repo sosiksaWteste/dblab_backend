@@ -2,6 +2,9 @@ const path = require('path');
 const fs = require('fs');
 const cache = path.join(__dirname, '..', 'cache.json');
 const DisciplineSkill = require('../models/Relations').DisciplineSkill;
+const Discipline = require('../models/Relations').Discipline;
+const Skill = require('../models/Relations').Skill;
+const Level = require('../models/Relations').Level;
 
 const create = async (req, res) => {
     try {
@@ -20,6 +23,40 @@ const getAll = async (req, res) => {
             return res.status(404).json({ message: 'disciplineSkill not found in cache.' });
         }
         return res.status(200).json(cacheData.disciplineSkills);
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+const getFromDb = async (req, res) => {
+    try {
+        const disciplineSkills = await DisciplineSkill.findAll({
+            include: [
+                {
+                    model: Level,
+                    attributes: ['level_name'],
+                    required: false 
+                },
+                {
+                    model: Discipline,
+                    attributes: ['discipline_name']
+                },
+                {
+                    model: Skill,
+                    attributes: ['skill_name']
+                },
+            ]
+        });
+        const result = disciplineSkills.map(disciplineSkill => {
+            const { Level, Discipline, Skill, ...disciplineSkillDate } = disciplineSkill.toJSON();
+            return {
+                ...disciplineSkillDate,
+                level_name: Level?Level.level_name:null,
+                discipline_name: Discipline.discipline_name,
+                skill_name: Skill.skill_name,
+            };
+        });
+        return res.status(200).json(result);
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
@@ -50,5 +87,6 @@ module.exports = {
     create,
     getAll,
     deleter,
-    update
+    update,
+    getFromDb
 };

@@ -25,6 +25,15 @@ const getAll = async (req, res) => {
     }
 };
 
+const getFromDb = async (req, res) => {
+    try {
+        const skills = await Skill.findAll({});
+        return res.status(200).json(skills);
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
 const deleter = async (req, res) => {
     try {
         const { skill_Id } = req.params;
@@ -50,5 +59,6 @@ module.exports = {
     create,
     getAll,
     deleter,
-    update
+    update,
+    getFromDb
 };
