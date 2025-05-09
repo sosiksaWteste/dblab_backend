@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.post('/create', isAdmin, notUpToDate, create);
 router.get('/getAll', getAll);
-router.delete('/delete/:skillChapter_Id', isAdmin, notUpToDate, deleter);
+router.delete('/delete', isAdmin, notUpToDate, deleter);
 router.put('/:skillChapter_Id', isAdmin, notUpToDate, update);
 router.get('/getFromDb', isAdmin, getFromDb);
 

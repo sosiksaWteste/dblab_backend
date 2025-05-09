@@ -34,22 +34,37 @@ const getFromDb = async (req, res) => {
             include: [
                 {
                     model: Level,
-                    attributes: ['level_name']
+                    attributes: ['level_Id', 'level_name']
                 },
                 {
                     model: DevelopmentDirection,
-                    attributes: ['development_direction_name']
+                    attributes: ['development_direction_Id', 'development_direction_name']
                 },
+                {
+                    model: Skill,
+                    through: { attributes: [] },
+                    attributes: ['skill_Id', 'skill_name']
+                }
             ]
         });
         const result = chapters.map(chapter => {
-            const { Level, DevelopmentDirection, ...chapterData } = chapter.toJSON();
+            const chapterJSON = chapter.toJSON();
+
             return {
-                ...chapterData,
-                level_name: Level.level_name,
-                development_direction_name: DevelopmentDirection.development_direction_name
+                chapter_Id: chapterJSON.chapter_Id,
+                chapter_name: chapterJSON.chapter_name,
+
+                level_Id: chapterJSON.Level?.level_Id || null,
+                level_name: chapterJSON.Level?.level_name || null,
+
+                development_direction_Id: chapterJSON.DevelopmentDirection?.development_direction_Id || null,
+                development_direction_name: chapterJSON.DevelopmentDirection?.development_direction_name || null,
+
+                skill_Id: chapterJSON.Skills?.map(skill => skill.skill_Id) || [],
+                skill_names: chapterJSON.Skills?.map(skill => skill.skill_name) || []
             };
         });
+
         return res.status(200).json(result);
     } catch (error) {
         return res.status(500).json({ message: error.message });

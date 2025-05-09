@@ -7,7 +7,8 @@ const User = require('../models/Relations').User;
 const create = async (req, res) => {
     try {
         const { user_Id, full_name, place_of_Employment, position, text, level, teacher_role, photo } = req.body;
-        const teacher = await Teacher.create({ user_Id, full_name, place_of_Employment, position, text, level, teacher_role, photo });
+        const photoBuffer = photo ? Buffer.from(photo, 'base64') : null;
+        const teacher = await Teacher.create({ user_Id, full_name, place_of_Employment, position, text, level, teacher_role, photo: photoBuffer });
         return res.status(201).json(teacher);
     } catch (error) {
         return res.status(500).json({ message: error.message });
@@ -33,8 +34,9 @@ const getFromDb = async (req, res) => {
                 {
                     model: User,
                     attributes: ['login']
-                },
-            ]
+                }
+            ],
+            attributes: { exclude: ['photo'] }
         });
         const result = teachers.map(teacher => {
             const { User, ...teacherData } = teacher.toJSON();

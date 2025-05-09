@@ -57,9 +57,13 @@ const getFromDb = async (req, res) => {
 
 const deleter = async (req, res) => {
     try {
-        const { skillChapter_Id } = req.params;
-        const result = await SkillChapter.destroy({ where: { skillChapter_Id } });
-        return res.status(200).json(result);
+        const { chapter_Id } = req.body;
+        const skillChapters = await SkillChapter.findAll({ where: { chapter_Id } });
+        if (!skillChapters.length) {
+            return res.status(404).json({ message: 'No SkillChapters found for the given chapter_Id' });
+        }
+        const result = await SkillChapter.destroy({ where: { chapter_Id } });
+        return res.status(200).json({ deletedCount: result });
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
