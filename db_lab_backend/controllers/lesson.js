@@ -5,9 +5,30 @@ const Lesson = require('../models/Relations').Lesson;
 
 const create = async (req, res) => {
     try {
-        const { name, lesson_date, lesson_time, link } = req.body;
-        const lesson = await Lesson.create({ name, lesson_date, lesson_time, link });
-        return res.status(201).json(lesson);
+        const { name, lesson_date, lesson_time, link, repeat, end_date } = req.body;
+        if (repeat > 0) {
+            const parseDate = (dateStr, timeStr) => {
+                const [day, month, year] = dateStr.split('.');
+                return new Date(`${year}-${month}-${day}T${timeStr}:00`);
+            };
+            let lessons = []
+            let currentDate = parseDate(lesson_date, lesson_time);
+            const finalDate = parseDate(end_date, lesson_time);
+            while (currentDate <= finalDate) {
+                lessons.push({
+                    name,
+                    lesson_date: new Date(currentDate),
+                    lesson_time,
+                    link
+                });
+                currentDate.setDate(currentDate.getDate() + parseInt(repeat));
+            }
+            const createdLessons = await Lesson.bulkCreate(lessons);
+            return res.status(201).json(createdLessons);
+        } else {
+            const lesson = await Lesson.create({ name, lesson_date, lesson_time, link });
+            return res.status(201).json(lesson);
+        }
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }

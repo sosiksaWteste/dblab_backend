@@ -28,7 +28,7 @@ const Event = db.sequelize.define('Event', {
         allowNull: true
     },
     begin_date: {
-        type: DataTypes.DATEONLY,
+        type: DataTypes.DATE, //mig
         allowNull: true
     },
     status: {

@@ -36,7 +36,7 @@ const Teacher = db.sequelize.define('Teacher', {
         allowNull: true
     },
     photo: {
-        type: DataTypes.BLOB('medium'),
+        type: DataTypes.BLOB('medium'), //mig
         allowNull: true
     },
 }, {

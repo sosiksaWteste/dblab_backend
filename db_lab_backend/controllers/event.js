@@ -29,11 +29,26 @@ const getAll = async (req, res) => {
 
 const getFromDb = async (req, res) => {
     try {
+        const formatDate = (dateStr) => {
+            const date = new Date(dateStr);
+            const dd = String(date.getDate()).padStart(2, '0');
+            const mm = String(date.getMonth() + 1).padStart(2, '0');
+            const yyyy = date.getFullYear();
+            return `${dd}.${mm}.${yyyy}`;
+        };
+        const formatTime = (timeStr) => {
+            return timeStr.slice(0, 5);
+        };
+        const getWeekdayShort = (dateStr) => {
+            const days = ['нд', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
+            const date = new Date(dateStr);
+            return days[date.getDay()];
+        };
         const events = await Event.findAll({
             include: [
                 {
                     model: Lesson,
-                    attributes: ['name']
+                    attributes: { exclude: [] }
                 },
                 {
                     model: Teacher,
@@ -42,11 +57,17 @@ const getFromDb = async (req, res) => {
             ]
         });
         const result = events.map(event => {
-            const { Lesson, Teacher, ...eventData } = event.toJSON();
+            const { Lesson: lesson, Teacher, begin_date, ...eventData } = event.toJSON();
+            const lessonDateFormatted = formatDate(lesson.lesson_date);
+            const lessonTimeFormatted = formatTime(lesson.lesson_time);
+            const weekday = getWeekdayShort(lesson.lesson_date);
+            const lesson_desc = `${lesson.name}, ${weekday} ${lessonDateFormatted} ${lessonTimeFormatted}`;
+            const beginDateFormatted = begin_date ? `${formatDate(begin_date)} ${new Date(begin_date).toTimeString().slice(0, 5)}` : null;
             return {
                 ...eventData,
-                lesson_name: Lesson.name,
-                full_name: Teacher.full_name,
+                lesson_desc,
+                teacher_name: Teacher.full_name,
+                begin_date: beginDateFormatted,
             };
         });
         return res.status(200).json(result);
