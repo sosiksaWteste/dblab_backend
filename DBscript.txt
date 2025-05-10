@@ -60,7 +60,7 @@ CREATE TABLE event (
     event_name VARCHAR(255),
     type VARCHAR(100),
     format VARCHAR(100),
-    begin_date DATE,
+    begin_date DATETIME,
     status VARCHAR(50),
     FOREIGN KEY (teacher_Id) REFERENCES teacher(teacher_Id),
     FOREIGN KEY (lesson_Id) REFERENCES lesson(lesson_Id)
@@ -70,7 +70,7 @@ CREATE TABLE material (
     material_Id INT PRIMARY KEY AUTO_INCREMENT,
     event_Id INT,
     material_name VARCHAR(255),
-    file MEDIUMBLOB,
+    file VARCHAR(255),
     material_type VARCHAR(100),
     FOREIGN KEY (event_Id) REFERENCES event(event_Id)
 );
