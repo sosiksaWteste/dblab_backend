@@ -9,6 +9,6 @@ router.get('/getAll', getAll);
 router.delete('/delete/:lesson_Id', isAdmin, notUpToDate, deleter);
 router.put('/:lesson_Id', isAdmin, notUpToDate, update);
 router.get('/getFromDb', isAdmin, getFromDb);
-router.get('/getLessonsBetweenDates', isAdmin, getLessonsBetweenDates);
+router.get('/getLessonsBetweenDates', getLessonsBetweenDates);
 
 module.exports = router;

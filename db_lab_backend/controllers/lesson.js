@@ -83,6 +83,8 @@ const getFromDb = async (req, res) => {
 
 const getLessonsBetweenDates = async (req, res) => {
     try {
+        const cacheData = JSON.parse(fs.readFileSync(cache, 'utf-8'));
+
         const formatDateTime = (dateStr) => {
             const date = new Date(dateStr);
             const day = String(date.getDate()).padStart(2, '0');
@@ -109,40 +111,27 @@ const getLessonsBetweenDates = async (req, res) => {
         }
         const start = parseDateOnly(start_date);
         const end = parseDateOnly(end_date);
-        const lessons = await Lesson.findAll({
-            where: {
-                lesson_date: {
-                    [Op.between]: [start, end]
-                }
-            },
-            include: [{
-                model: Event,
-                include: [
-                    {
-                        model: Teacher,
-                        attributes: ['teacher_Id', 'full_name']
-                    },
-                    {
-                        model: Material
-                    }
-                ]
-            }]
+        const lessons = cacheData.lessons.filter(lesson => {
+            const lessonDate = new Date(lesson.lesson_date);
+            return lessonDate >= start && lessonDate <= end;
         });
         const result = lessons.map(lesson => {
-            const { Events, ...lessonData } = lesson.toJSON();
+            const relatedEvents = cacheData.events.filter(event => event.lesson_Id === lesson.lesson_Id);
+            const events = relatedEvents.map(event => {
+                const teacher = cacheData.teachers?.find(t => t.teacher_Id === event.teacher_Id);
+                const materials = cacheData.materials?.filter(m => m.event_Id === event.event_Id) || [];
+                return {
+                    ...event,
+                    begin_date: formatDateTime(event.begin_date),
+                    teacher_name: teacher?.full_name || null,
+                    materials
+                };
+            });
             return {
-                ...lessonData,
-                lesson_date: formatDate(lessonData.lesson_date),
-                lesson_time: formatTime(lessonData.lesson_time),
-                events: Events.map(event => {
-                    const { Teacher: teacher, Materials: materials, ...eventData } = event;
-                    return {
-                        ...eventData,
-                        begin_date: formatDateTime(eventData.begin_date),
-                        teacher_name: teacher?.teacher_name || null,
-                        materials
-                    };
-                })
+                ...lesson,
+                lesson_date: formatDate(lesson.lesson_date),
+                lesson_time: formatTime(lesson.lesson_time),
+                events
             };
         });
         return res.status(200).json(result);
