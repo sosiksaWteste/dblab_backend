@@ -1,16 +1,17 @@
 const path = require('path');
 const fs = require('fs');
 const cache = path.join(__dirname, '..', 'cache.json');
-const Lesson = require('../models/Relations').Lesson;
+const {Lesson, Teacher, Event, Material} = require('../models/Relations');
+const { Op } = require('sequelize');
 
 const create = async (req, res) => {
     try {
         const { name, lesson_date, lesson_time, link, repeat, end_date } = req.body;
+        const parseDate = (dateStr, timeStr) => {
+            const [day, month, year] = dateStr.split('.');
+            return new Date(`${year}-${month}-${day}T${timeStr}:00`);
+        };
         if (repeat > 0) {
-            const parseDate = (dateStr, timeStr) => {
-                const [day, month, year] = dateStr.split('.');
-                return new Date(`${year}-${month}-${day}T${timeStr}:00`);
-            };
             let lessons = []
             let currentDate = parseDate(lesson_date, lesson_time);
             const finalDate = parseDate(end_date, lesson_time);
@@ -26,12 +27,26 @@ const create = async (req, res) => {
             const createdLessons = await Lesson.bulkCreate(lessons);
             return res.status(201).json(createdLessons);
         } else {
-            const lesson = await Lesson.create({ name, lesson_date, lesson_time, link });
+            const parsedDate = parseDate(lesson_date, lesson_time);
+            const lesson = await Lesson.create({
+                name,
+                lesson_date: parsedDate,
+                lesson_time,
+                link
+            });
             return res.status(201).json(lesson);
         }
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
+};
+
+const formatDate = (dateStr) => {
+    const date = new Date(dateStr);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}.${month}.${year}`;
 };
 
 const getAll = async (req, res) => {
@@ -40,7 +55,11 @@ const getAll = async (req, res) => {
         if (!cacheData.lessons) {
             return res.status(404).json({ message: 'lesson not found in cache.' });
         }
-        return res.status(200).json(cacheData.lessons);
+        const formattedLessons = cacheData.lessons.map(lesson => ({
+            ...lesson,
+            lesson_date: formatDate(lesson.lesson_date)
+        }));
+        return res.status(200).json(formattedLessons);
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
@@ -49,7 +68,84 @@ const getAll = async (req, res) => {
 const getFromDb = async (req, res) => {
     try {
         const lessons = await Lesson.findAll({});
-        return res.status(200).json(lessons);
+        const formattedLessons = lessons.map(lesson => {
+            const data = lesson.toJSON();
+            return {
+                ...data,
+                lesson_date: formatDate(data.lesson_date)
+            };
+        });
+        return res.status(200).json(formattedLessons);
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+const getLessonsBetweenDates = async (req, res) => {
+    try {
+        const formatDateTime = (dateStr) => {
+            const date = new Date(dateStr);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${day}.${month}.${year} ${hours}:${minutes}`;
+        };
+        const formatTime = (timeStr) => {
+            if (!timeStr) return null;
+            return timeStr.slice(0,5);
+        };
+        const parseDateOnly = (dateStr) => {
+            if (!dateStr || typeof dateStr !== 'string') {
+                throw new Error('Invalid date format');
+            }
+            const [day, month, year] = dateStr.split('.');
+            return new Date(`${year}-${month}-${day}`);
+        };
+        const { start_date, end_date } = req.query;
+        if (!start_date || !end_date) {
+            return res.status(400).json({ message: 'start_date and end_date are required in format dd.mm.yyyy' });
+        }
+        const start = parseDateOnly(start_date);
+        const end = parseDateOnly(end_date);
+        const lessons = await Lesson.findAll({
+            where: {
+                lesson_date: {
+                    [Op.between]: [start, end]
+                }
+            },
+            include: [{
+                model: Event,
+                include: [
+                    {
+                        model: Teacher,
+                        attributes: ['teacher_Id', 'full_name']
+                    },
+                    {
+                        model: Material
+                    }
+                ]
+            }]
+        });
+        const result = lessons.map(lesson => {
+            const { Events, ...lessonData } = lesson.toJSON();
+            return {
+                ...lessonData,
+                lesson_date: formatDate(lessonData.lesson_date),
+                lesson_time: formatTime(lessonData.lesson_time),
+                events: Events.map(event => {
+                    const { Teacher: teacher, Materials: materials, ...eventData } = event;
+                    return {
+                        ...eventData,
+                        begin_date: formatDateTime(eventData.begin_date),
+                        teacher_name: teacher?.teacher_name || null,
+                        materials
+                    };
+                })
+            };
+        });
+        return res.status(200).json(result);
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
@@ -81,5 +177,6 @@ module.exports = {
     getAll,
     deleter,
     update,
-    getFromDb
+    getFromDb,
+    getLessonsBetweenDates
 };
