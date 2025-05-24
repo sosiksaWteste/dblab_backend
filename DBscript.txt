@@ -28,7 +28,7 @@ CREATE TABLE language (
 CREATE TABLE discipline (
     discipline_Id INT PRIMARY KEY AUTO_INCREMENT,
     discipline_name VARCHAR(255),
-    discipline_Description VARCHAR(255),
+    discipline_Description VARCHAR(500),
     discipline_type VARCHAR(255),
     volume INT,
     syllabus_link VARCHAR(255)
@@ -60,7 +60,7 @@ CREATE TABLE event (
     event_name VARCHAR(255),
     type VARCHAR(100),
     format VARCHAR(100),
-    begin_date DATETIME,
+    begin_date TIME,
     status VARCHAR(50),
     FOREIGN KEY (teacher_Id) REFERENCES teacher(teacher_Id),
     FOREIGN KEY (lesson_Id) REFERENCES lesson(lesson_Id)
@@ -78,7 +78,7 @@ CREATE TABLE material (
 CREATE TABLE development_direction (
     development_direction_Id INT PRIMARY KEY AUTO_INCREMENT,
     development_direction_name VARCHAR(255),
-    development_direction_Description VARCHAR(255)
+    development_direction_Description VARCHAR(500)
 );
 
 CREATE TABLE level (

@@ -12,7 +12,7 @@ const DevelopmentDirection = db.sequelize.define('DevelopmentDirection', {
         allowNull: false
     },
     development_direction_Description: {
-        type: DataTypes.STRING(255),
+        type: DataTypes.STRING(500),
         allowNull: true
     },
 }, {

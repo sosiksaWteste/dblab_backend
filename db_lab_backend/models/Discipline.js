@@ -12,7 +12,7 @@ const Discipline = db.sequelize.define('Discipline', {
         allowNull: false
     },
     discipline_Description: {
-        type: DataTypes.STRING(255),
+        type: DataTypes.STRING(500),
         allowNull: true
     },
     discipline_type: {

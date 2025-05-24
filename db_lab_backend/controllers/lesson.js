@@ -1,20 +1,25 @@
 const path = require('path');
 const fs = require('fs');
 const cache = path.join(__dirname, '..', 'cache.json');
-const {Lesson, Teacher, Event, Material} = require('../models/Relations');
-const { Op } = require('sequelize');
+const { Lesson } = require('../models/Relations');
+
+const parseDateTime = (dateStr, timeStr) => {
+    const [day, month, year] = dateStr.split('.');
+    return new Date(`${year}-${month}-${day}T${timeStr}:00`);
+};
+
+const parseDate = (dateStr) => {
+    const [day, month, year] = dateStr.split('.');
+    return new Date(`${year}-${month}-${day}`);
+};
 
 const create = async (req, res) => {
     try {
         const { name, lesson_date, lesson_time, link, repeat, end_date } = req.body;
-        const parseDate = (dateStr, timeStr) => {
-            const [day, month, year] = dateStr.split('.');
-            return new Date(`${year}-${month}-${day}T${timeStr}:00`);
-        };
         if (repeat > 0) {
             let lessons = []
-            let currentDate = parseDate(lesson_date, lesson_time);
-            const finalDate = parseDate(end_date, lesson_time);
+            let currentDate = parseDateTime(lesson_date, lesson_time);
+            const finalDate = parseDateTime(end_date, lesson_time);
             while (currentDate <= finalDate) {
                 lessons.push({
                     name,
@@ -27,7 +32,7 @@ const create = async (req, res) => {
             const createdLessons = await Lesson.bulkCreate(lessons);
             return res.status(201).json(createdLessons);
         } else {
-            const parsedDate = parseDate(lesson_date, lesson_time);
+            const parsedDate = parseDate(lesson_date);
             const lesson = await Lesson.create({
                 name,
                 lesson_date: parsedDate,
@@ -98,7 +103,7 @@ const getLessonsBetweenDates = async (req, res) => {
             if (!timeStr) return null;
             return timeStr.slice(0,5);
         };
-        const parseDateOnly = (dateStr) => {
+        const parseDateTimeOnly = (dateStr) => {
             if (!dateStr || typeof dateStr !== 'string') {
                 throw new Error('Invalid date format');
             }
@@ -109,8 +114,8 @@ const getLessonsBetweenDates = async (req, res) => {
         if (!start_date || !end_date) {
             return res.status(400).json({ message: 'start_date and end_date are required in format dd.mm.yyyy' });
         }
-        const start = parseDateOnly(start_date);
-        const end = parseDateOnly(end_date);
+        const start = parseDateTimeOnly(start_date);
+        const end = parseDateTimeOnly(end_date);
         const lessons = cacheData.lessons.filter(lesson => {
             const lessonDate = new Date(lesson.lesson_date);
             return lessonDate >= start && lessonDate <= end;
@@ -154,7 +159,7 @@ const update = async (req, res) => {
     try {
         const { lesson_Id } = req.params;
         const { name, lesson_date, lesson_time, link } = req.body;
-        const lesson = await Lesson.update({ name, lesson_date, lesson_time, link }, {where: {lesson_Id}});
+        const lesson = await Lesson.update({ name, lesson_date: parseDate(lesson_date), lesson_time, link }, {where: {lesson_Id}});
         return res.status(200).json(lesson);
     } catch (error) {
         return res.status(500).json({ message: error.message });
