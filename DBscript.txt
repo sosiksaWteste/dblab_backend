@@ -13,7 +13,7 @@ CREATE TABLE teacher (
     full_name VARCHAR(255),
     place_of_Employment VARCHAR(255),
     position VARCHAR(255),
-    text VARCHAR(255),
+    text VARCHAR(500),
     level VARCHAR(100),
     teacher_role VARCHAR(255),
     photo MEDIUMBLOB,

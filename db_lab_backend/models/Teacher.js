@@ -24,7 +24,7 @@ const Teacher = db.sequelize.define('Teacher', {
         allowNull: true
     },
     text: {
-        type: DataTypes.STRING(255),
+        type: DataTypes.STRING(500),
         allowNull: true
     },
     level: {
