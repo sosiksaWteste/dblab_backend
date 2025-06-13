@@ -127,7 +127,7 @@ const getLessonsBetweenDates = async (req, res) => {
                 const materials = cacheData.materials?.filter(m => m.event_Id === event.event_Id) || [];
                 return {
                     ...event,
-                    begin_date: formatDateTime(event.begin_date),
+                    begin_date: formatTime(event.begin_date),
                     teacher_name: teacher?.full_name || null,
                     materials
                 };
